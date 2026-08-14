@@ -1,0 +1,32 @@
+if(NOT EXISTS "@CMAKE_BINARY_DIR@/install_manifest.txt")
+  message(FATAL_ERROR
+    "Cannot find install manifest: @CMAKE_BINARY_DIR@/install_manifest.txt\n"
+    "Install the project first (cmake --install), or use scripts/uninstall.sh.")
+endif()
+
+file(READ "@CMAKE_BINARY_DIR@/install_manifest.txt" files)
+string(REGEX REPLACE "\n" ";" files "${files}")
+
+foreach(file ${files})
+  message(STATUS "Uninstalling: ${file}")
+  if(IS_SYMLINK "${file}" OR EXISTS "${file}")
+    file(REMOVE "${file}")
+  else()
+    message(STATUS "File does not exist (already removed?): ${file}")
+  endif()
+endforeach()
+
+# Best-effort cache refresh (same idea as PostInstall.cmake).
+find_program(UPDATE_DESKTOP_DATABASE update-desktop-database)
+if(UPDATE_DESKTOP_DATABASE)
+  execute_process(
+    COMMAND "${UPDATE_DESKTOP_DATABASE}" "@CMAKE_INSTALL_PREFIX@/share/applications"
+    RESULT_VARIABLE _r OUTPUT_QUIET ERROR_QUIET)
+endif()
+
+find_program(GTK_UPDATE_ICON_CACHE gtk-update-icon-cache)
+if(GTK_UPDATE_ICON_CACHE)
+  execute_process(
+    COMMAND "${GTK_UPDATE_ICON_CACHE}" -f -t "@CMAKE_INSTALL_PREFIX@/share/icons/hicolor"
+    RESULT_VARIABLE _r OUTPUT_QUIET ERROR_QUIET)
+endif()

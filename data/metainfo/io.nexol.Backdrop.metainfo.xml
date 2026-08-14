@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.nexol.Backdrop</id>
+  <name>Backdrop</name>
+  <summary>Minimal wallpaper rotator</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <developer id="io.nexol">
+    <name>Dmytro</name>
+  </developer>
+  <update_contact>dmytro@nexol.io</update_contact>
+  <description>
+    <p>
+      Backdrop lets you pick wallpaper images or folders and rotate them on a timer
+      across common Linux desktops.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.nexol.Backdrop.desktop</launchable>
+  <url type="homepage">https://nexol.io</url>
+  <provides>
+    <binary>backdrop</binary>
+  </provides>
+  <releases>
+    <release version="0.1.0" date="2026-07-29"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>

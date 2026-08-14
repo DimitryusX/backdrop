@@ -1,0 +1,172 @@
+# Ukrainian translation for Backdrop.
+msgid ""
+msgstr ""
+"Project-Id-Version: backdrop 0.1.0\n"
+"Report-Msgid-Bugs-To: dmytro@nexol.io\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "Backdrop — minimal Linux wallpaper rotator"
+msgstr "Backdrop — мінімальний ротатор шпалер для Linux"
+
+msgid "Usage: backdrop [--daemon]"
+msgstr "Використання: backdrop [--daemon]"
+
+msgid "Failed to update background service"
+msgstr "Не вдалося оновити фоновий сервіс"
+
+msgid "Add images or a folder"
+msgstr "Додайте зображення або теку"
+
+msgid "Images found: "
+msgstr "Знайдено зображень: "
+
+msgid "Folder"
+msgstr "Тека"
+
+msgid "Remove folder from list"
+msgstr "Прибрати теку зі списку"
+
+msgid "Remove from list"
+msgstr "Видалити зі списку"
+
+msgid "Stop"
+msgstr "Стоп"
+
+msgid "Start"
+msgstr "Старт"
+
+msgid "No images. Add files or a folder."
+msgstr "Немає зображень. Додайте файли або теку."
+
+msgid "Background service started (keeps running after you close the window)"
+msgstr "Фоновий сервіс запущено (працює після закриття вікна)"
+
+msgid "error"
+msgstr "помилка"
+
+msgid " — falling back to in-process mode"
+msgstr " — запасний режим у процесі програми"
+
+msgid "Running in the app process (closing the window may stop rotation)"
+msgstr "Запущено в процесі програми (закриття вікна може зупинити ротацію)"
+
+msgid "Stopped"
+msgstr "Зупинено"
+
+msgid "Imported: %d, failed: %d"
+msgstr "Імпортовано: %d, помилок: %d"
+
+msgid "Imported: %d, duplicates: %d, failed: %d"
+msgstr "Імпортовано: %d, дублікатів: %d, помилок: %d"
+
+msgid "Imported images: %d → ~/.local/share/backdrop/wallpapers"
+msgstr "Імпортовано зображень: %d → ~/.local/share/backdrop/wallpapers"
+
+msgid "Failed to read: "
+msgstr "Не вдалося прочитати: "
+
+msgid "Import images"
+msgstr "Імпортувати зображення"
+
+msgid "Images"
+msgstr "Зображення"
+
+msgid "Select folder"
+msgstr "Вибрати теку"
+
+msgid "No images"
+msgstr "Немає зображень"
+
+msgid "Failed to switch wallpaper"
+msgstr "Не вдалося перемкнути шпалеру"
+
+msgid "Requested next wallpaper"
+msgstr "Надіслано запит на наступну шпалеру"
+
+msgid "Wallpapers"
+msgstr "Шпалери"
+
+msgid "No images\nImport files or add a folder"
+msgstr "Немає зображень\nІмпортуйте файли або додайте теку"
+
+msgid "Sources"
+msgstr "Джерела"
+
+msgid "Import"
+msgstr "Імпорт"
+
+msgid "Copy images into ~/.local/share/backdrop/wallpapers"
+msgstr "Скопіювати зображення в ~/.local/share/backdrop/wallpapers"
+
+msgid "Link a folder (no copying)"
+msgstr "Посилання на теку (без копіювання)"
+
+msgid "Clear"
+msgstr "Очистити"
+
+msgid "Rotation"
+msgstr "Ротація"
+
+msgid "Interval"
+msgstr "Інтервал"
+
+msgid "minutes"
+msgstr "хвилин"
+
+msgid "Shuffle"
+msgstr "Випадковий порядок"
+
+msgid "Next"
+msgstr "Наступна"
+
+msgid "Ready"
+msgstr "Готово"
+
+msgid "Background service is active"
+msgstr "Фоновий сервіс активний"
+
+msgid "Now: "
+msgstr "Зараз: "
+
+msgid "No images in config. Set them up in the GUI first.\n"
+msgstr "Немає зображень у конфігу. Спочатку налаштуйте через GUI.\n"
+
+msgid "Reload: no images in config, stopping.\n"
+msgstr "Reload: немає зображень у конфігу, зупиняюсь.\n"
+
+msgid "Not a file: "
+msgstr "Не файл: "
+
+msgid "Failed to create "
+msgstr "Не вдалося створити "
+
+msgid "Failed to copy: "
+msgstr "Не вдалося скопіювати: "
+
+msgid "Could not resolve backdrop executable path"
+msgstr "Не вдалося визначити шлях до backdrop"
+
+msgid "HOME is not set"
+msgstr "Немає змінної HOME"
+
+msgid "Failed to write "
+msgstr "Не вдалося записати "
+
+msgid "systemctl enable --now failed"
+msgstr "systemctl enable --now не вдався"
+
+msgid "failed to stop service"
+msgstr "не вдалося зупинити сервіс"
+
+msgid "failed to send SIGUSR1"
+msgstr "не вдалося надіслати SIGUSR1"
+
+msgid "failed to send SIGHUP"
+msgstr "не вдалося надіслати SIGHUP"
+
+msgid "Failed to set: "
+msgstr "Не вдалося встановити: "

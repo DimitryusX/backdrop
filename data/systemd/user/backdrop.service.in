@@ -1,0 +1,16 @@
+[Unit]
+Description=Backdrop wallpaper rotator
+Documentation=man:systemd(1)
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=@BACKDROP_EXECUTABLE@ --daemon
+Restart=on-failure
+RestartSec=3
+
+# Wallpaper tools need the graphical session environment.
+# systemd user services inherit the login session bus for the user.
+
+[Install]
+WantedBy=default.target

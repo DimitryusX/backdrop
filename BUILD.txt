@@ -1,0 +1,35 @@
+# Build & packaging notes
+
+Most users only need the README. This file covers install prefixes and packages.
+
+## Install variants
+
+```bash
+./scripts/install.sh                 # PREFIX=/usr/local
+PREFIX=/usr ./scripts/install.sh
+DESTDIR=/tmp/root ./scripts/install.sh
+```
+
+## Source tarball
+
+```bash
+./scripts/dist.sh
+# → dist/backdrop-VERSION.tar.gz
+```
+
+## RPM
+
+```bash
+sudo dnf install rpm-build rpmdevtools
+./scripts/package-rpm.sh
+```
+
+Spec: `packaging/rpm/backdrop.spec`.
+
+## Flatpak
+
+```bash
+./scripts/package-flatpak.sh
+```
+
+Manifest: `packaging/flatpak/io.nexol.Backdrop.yml`.

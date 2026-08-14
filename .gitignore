@@ -1,0 +1,10 @@
+/build/
+/dist/
+/.flatpak-builder/
+*.rpm
+*.src.rpm
+*.o
+*.a
+*~
+.vscode/
+.idea/
