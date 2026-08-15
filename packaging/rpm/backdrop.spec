@@ -1,5 +1,5 @@
 Name:           backdrop
-Version:        0.1.0
+Version:        0.1.1
 Release:        1%{?dist}
 Summary:        Minimal Linux wallpaper rotator
 
@@ -61,6 +61,8 @@ A systemd --user service keeps rotation running after the window is closed.
 %lang(uk) %{_datadir}/locale/uk/LC_MESSAGES/backdrop.mo
 
 %changelog
+* Sat Aug 15 2026 Dmytro <dmytro@nexol.io> - 0.1.1-1
+- Follow system light/dark theme with a more native Adwaita UI
 * Thu Jul 30 2026 Dmytro <dmytro@nexol.io> - 0.1.0-1
 - Add gettext i18n (English + Ukrainian)
 * Thu Jul 30 2026 Dmytro <dmytro@nexol.io> - 0.1.0-1

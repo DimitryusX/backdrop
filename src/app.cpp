@@ -28,8 +28,8 @@ struct UiState {
   GtkListBox* folder_list = nullptr;
   GtkFlowBox* image_grid = nullptr;
   GtkWidget* empty_state = nullptr;
-  GtkSpinButton* interval = nullptr;
-  GtkSwitch* shuffle = nullptr;
+  AdwSpinRow* interval = nullptr;
+  AdwSwitchRow* shuffle = nullptr;
   GtkLabel* status = nullptr;
   GtkButton* toggle_btn = nullptr;
   GtkButton* next_btn = nullptr;
@@ -60,10 +60,10 @@ void queue_status(UiState* st, const std::string& text) {
 
 void sync_config_from_ui(UiState* st) {
   if (st->interval != nullptr) {
-    st->config.interval_minutes = gtk_spin_button_get_value(st->interval);
+    st->config.interval_minutes = adw_spin_row_get_value(st->interval);
   }
   if (st->shuffle != nullptr) {
-    st->config.shuffle = gtk_switch_get_active(st->shuffle);
+    st->config.shuffle = adw_switch_row_get_active(st->shuffle);
   }
 }
 
@@ -247,28 +247,14 @@ void free_path_payload(gpointer data, GClosure*) {
 }
 
 void append_folder_row(UiState* st, const std::string& path) {
-  GtkWidget* list_row = gtk_list_box_row_new();
-  gtk_widget_add_css_class(list_row, "folder-row");
-
-  GtkWidget* box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
-  gtk_widget_set_margin_top(box, 8);
-  gtk_widget_set_margin_bottom(box, 8);
-  gtk_widget_set_margin_start(box, 12);
-  gtk_widget_set_margin_end(box, 8);
+  AdwActionRow* row = ADW_ACTION_ROW(adw_action_row_new());
+  gtk_widget_add_css_class(GTK_WIDGET(row), "folder-row");
+  adw_preferences_row_set_title(ADW_PREFERENCES_ROW(row), _("Folder"));
+  adw_action_row_set_subtitle(row, path.c_str());
+  adw_action_row_set_subtitle_lines(row, 1);
 
   GtkWidget* icon = gtk_image_new_from_icon_name("folder-symbolic");
-  gtk_image_set_pixel_size(GTK_IMAGE(icon), 24);
-
-  GtkWidget* text_col = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
-  gtk_widget_set_hexpand(text_col, TRUE);
-  GtkWidget* title = gtk_label_new(_("Folder"));
-  gtk_widget_set_halign(title, GTK_ALIGN_START);
-  GtkWidget* subtitle = gtk_label_new(path.c_str());
-  gtk_widget_set_halign(subtitle, GTK_ALIGN_START);
-  gtk_label_set_ellipsize(GTK_LABEL(subtitle), PANGO_ELLIPSIZE_MIDDLE);
-  gtk_widget_add_css_class(subtitle, "dim-label");
-  gtk_box_append(GTK_BOX(text_col), title);
-  gtk_box_append(GTK_BOX(text_col), subtitle);
+  adw_action_row_add_prefix(row, icon);
 
   GtkWidget* remove = gtk_button_new_from_icon_name("user-trash-symbolic");
   gtk_widget_add_css_class(remove, "flat");
@@ -278,12 +264,9 @@ void append_folder_row(UiState* st, const std::string& path) {
   auto* payload = new std::pair<UiState*, std::string>(st, path);
   g_signal_connect_data(remove, "clicked", G_CALLBACK(on_remove_path), payload, free_path_payload,
                         static_cast<GConnectFlags>(0));
+  adw_action_row_add_suffix(row, remove);
 
-  gtk_box_append(GTK_BOX(box), icon);
-  gtk_box_append(GTK_BOX(box), text_col);
-  gtk_box_append(GTK_BOX(box), remove);
-  gtk_list_box_row_set_child(GTK_LIST_BOX_ROW(list_row), box);
-  gtk_list_box_append(st->folder_list, list_row);
+  gtk_list_box_append(st->folder_list, GTK_WIDGET(row));
 }
 
 void append_image_tile(UiState* st, const fs::path& image_path) {
@@ -451,18 +434,17 @@ void stop_rotation(UiState* st) {
   set_status(st, _("Stopped"));
 }
 
-void on_settings_changed(GtkSpinButton*, gpointer user_data) {
+void on_interval_changed(GObject*, GParamSpec*, gpointer user_data) {
   auto* st = static_cast<UiState*>(user_data);
   persist(st);
   notify_backend_config(st);
 }
 
-gboolean on_shuffle_set(GtkSwitch*, gboolean state, gpointer user_data) {
+void on_shuffle_changed(GObject*, GParamSpec*, gpointer user_data) {
   auto* st = static_cast<UiState*>(user_data);
-  st->config.shuffle = state;
+  sync_config_from_ui(st);
   st->config.save();
   notify_backend_config(st);
-  return FALSE;
 }
 
 void on_files_chosen(GObject* source, GAsyncResult* result, gpointer user_data) {
@@ -634,31 +616,34 @@ GtkWidget* build_window(UiState* st) {
   AdwApplicationWindow* window =
       ADW_APPLICATION_WINDOW(adw_application_window_new(GTK_APPLICATION(st->app)));
   gtk_window_set_title(GTK_WINDOW(window), "Backdrop");
-  gtk_window_set_default_size(GTK_WINDOW(window), 520, 680);
+  gtk_window_set_default_size(GTK_WINDOW(window), 560, 720);
+  gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
   g_signal_connect(window, "close-request", G_CALLBACK(on_close_request), st);
   st->window = GTK_WINDOW(window);
 
   AdwToolbarView* toolbar = ADW_TOOLBAR_VIEW(adw_toolbar_view_new());
+  adw_toolbar_view_set_top_bar_style(toolbar, ADW_TOOLBAR_RAISED);
   AdwHeaderBar* header = ADW_HEADER_BAR(adw_header_bar_new());
-  adw_header_bar_set_show_title(header, FALSE);
-  GtkWidget* title = gtk_label_new("Backdrop");
-  gtk_widget_add_css_class(title, "heading");
-  gtk_widget_set_margin_start(title, 6);
-  adw_header_bar_pack_start(header, title);
+  adw_header_bar_set_title_widget(header, adw_window_title_new("Backdrop", nullptr));
   adw_toolbar_view_add_top_bar(toolbar, GTK_WIDGET(header));
 
-  GtkWidget* root = gtk_box_new(GTK_ORIENTATION_VERTICAL, 14);
-  gtk_widget_set_margin_top(root, 16);
-  gtk_widget_set_margin_bottom(root, 16);
-  gtk_widget_set_margin_start(root, 16);
-  gtk_widget_set_margin_end(root, 16);
+  GtkWidget* clamp = adw_clamp_new();
+  adw_clamp_set_maximum_size(ADW_CLAMP(clamp), 560);
+  adw_clamp_set_tightening_threshold(ADW_CLAMP(clamp), 480);
 
-  GtkWidget* sources_label = gtk_label_new(_("Wallpapers"));
-  gtk_widget_set_halign(sources_label, GTK_ALIGN_START);
-  gtk_widget_add_css_class(sources_label, "heading");
-  gtk_box_append(GTK_BOX(root), sources_label);
+  GtkWidget* root = gtk_box_new(GTK_ORIENTATION_VERTICAL, 18);
+  gtk_widget_set_margin_top(root, 12);
+  gtk_widget_set_margin_bottom(root, 24);
+  gtk_widget_set_margin_start(root, 12);
+  gtk_widget_set_margin_end(root, 12);
+  adw_clamp_set_child(ADW_CLAMP(clamp), root);
 
-  st->gallery = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 8));
+  GtkWidget* wallpapers_label = gtk_label_new(_("Wallpapers"));
+  gtk_widget_set_halign(wallpapers_label, GTK_ALIGN_START);
+  gtk_widget_add_css_class(wallpapers_label, "heading");
+  gtk_box_append(GTK_BOX(root), wallpapers_label);
+
+  st->gallery = GTK_BOX(gtk_box_new(GTK_ORIENTATION_VERTICAL, 10));
 
   st->folder_list = GTK_LIST_BOX(gtk_list_box_new());
   gtk_list_box_set_selection_mode(st->folder_list, GTK_SELECTION_NONE);
@@ -675,102 +660,86 @@ GtkWidget* build_window(UiState* st) {
   gtk_widget_set_hexpand(GTK_WIDGET(st->image_grid), TRUE);
   gtk_box_append(st->gallery, GTK_WIDGET(st->image_grid));
 
-  st->empty_state = gtk_label_new(_("No images\nImport files or add a folder"));
-  gtk_label_set_justify(GTK_LABEL(st->empty_state), GTK_JUSTIFY_CENTER);
-  gtk_label_set_wrap(GTK_LABEL(st->empty_state), TRUE);
-  gtk_widget_set_halign(st->empty_state, GTK_ALIGN_CENTER);
-  gtk_widget_set_valign(st->empty_state, GTK_ALIGN_CENTER);
-  gtk_widget_set_hexpand(st->empty_state, TRUE);
+  st->empty_state = adw_status_page_new();
+  adw_status_page_set_icon_name(ADW_STATUS_PAGE(st->empty_state), "folder-pictures-symbolic");
+  adw_status_page_set_title(ADW_STATUS_PAGE(st->empty_state), _("No images"));
+  adw_status_page_set_description(ADW_STATUS_PAGE(st->empty_state),
+                                  _("Import files or add a folder to start rotating wallpapers"));
   gtk_widget_set_vexpand(st->empty_state, TRUE);
-  gtk_widget_add_css_class(st->empty_state, "dim-label");
   gtk_widget_set_visible(st->empty_state, FALSE);
   gtk_box_append(st->gallery, st->empty_state);
 
-  GtkWidget* list_scroll = gtk_scrolled_window_new();
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(list_scroll), GTK_POLICY_NEVER,
+  GtkWidget* gallery_scroll = gtk_scrolled_window_new();
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(gallery_scroll), GTK_POLICY_NEVER,
                                  GTK_POLICY_AUTOMATIC);
-  gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(list_scroll), 320);
-  gtk_widget_set_vexpand(list_scroll, TRUE);
-  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(list_scroll), GTK_WIDGET(st->gallery));
-  gtk_box_append(GTK_BOX(root), list_scroll);
-  rebuild_path_list(st);
+  gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(gallery_scroll), 280);
+  gtk_scrolled_window_set_max_content_height(GTK_SCROLLED_WINDOW(gallery_scroll), 320);
+  gtk_scrolled_window_set_propagate_natural_height(GTK_SCROLLED_WINDOW(gallery_scroll), TRUE);
+  gtk_widget_set_vexpand(gallery_scroll, TRUE);
+  gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(gallery_scroll), GTK_WIDGET(st->gallery));
+  gtk_box_append(GTK_BOX(root), gallery_scroll);
 
-  GtkWidget* params_row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 16);
-  gtk_box_set_homogeneous(GTK_BOX(params_row), TRUE);
-
-  // Left column: sources
-  GtkWidget* left_col = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
   GtkWidget* sources_heading = gtk_label_new(_("Sources"));
   gtk_widget_set_halign(sources_heading, GTK_ALIGN_START);
   gtk_widget_add_css_class(sources_heading, "heading");
-  gtk_box_append(GTK_BOX(left_col), sources_heading);
+  gtk_box_append(GTK_BOX(root), sources_heading);
 
+  GtkWidget* source_buttons = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
   GtkWidget* add_files = gtk_button_new_with_label(_("Import"));
+  gtk_widget_add_css_class(add_files, "pill");
   gtk_widget_set_hexpand(add_files, TRUE);
   g_signal_connect(add_files, "clicked", G_CALLBACK(on_add_files), st);
   gtk_widget_set_tooltip_text(add_files, _("Copy images into ~/.local/share/backdrop/wallpapers"));
-  gtk_box_append(GTK_BOX(left_col), add_files);
 
   GtkWidget* add_folder = gtk_button_new_with_label(_("Folder"));
+  gtk_widget_add_css_class(add_folder, "pill");
   gtk_widget_set_hexpand(add_folder, TRUE);
   g_signal_connect(add_folder, "clicked", G_CALLBACK(on_add_folder), st);
   gtk_widget_set_tooltip_text(add_folder, _("Link a folder (no copying)"));
-  gtk_box_append(GTK_BOX(left_col), add_folder);
 
   GtkWidget* clear_btn = gtk_button_new_with_label(_("Clear"));
-  gtk_widget_set_hexpand(clear_btn, TRUE);
+  gtk_widget_add_css_class(clear_btn, "pill");
   gtk_widget_add_css_class(clear_btn, "destructive-action");
+  gtk_widget_set_hexpand(clear_btn, TRUE);
   g_signal_connect(clear_btn, "clicked", G_CALLBACK(on_clear), st);
-  gtk_box_append(GTK_BOX(left_col), clear_btn);
 
-  // Right column: rotation settings + controls
-  GtkWidget* right_col = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
-  GtkWidget* rotation_heading = gtk_label_new(_("Rotation"));
-  gtk_widget_set_halign(rotation_heading, GTK_ALIGN_START);
-  gtk_widget_add_css_class(rotation_heading, "heading");
-  gtk_box_append(GTK_BOX(right_col), rotation_heading);
+  gtk_box_append(GTK_BOX(source_buttons), add_files);
+  gtk_box_append(GTK_BOX(source_buttons), add_folder);
+  gtk_box_append(GTK_BOX(source_buttons), clear_btn);
+  gtk_box_append(GTK_BOX(root), source_buttons);
 
-  GtkWidget* interval_label = gtk_label_new(_("Interval"));
-  gtk_widget_set_halign(interval_label, GTK_ALIGN_START);
-  gtk_box_append(GTK_BOX(right_col), interval_label);
+  AdwPreferencesGroup* rotation = ADW_PREFERENCES_GROUP(adw_preferences_group_new());
+  adw_preferences_group_set_title(rotation, _("Rotation"));
 
-  GtkWidget* interval_row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-  gtk_widget_set_valign(interval_row, GTK_ALIGN_CENTER);
-  st->interval = GTK_SPIN_BUTTON(gtk_spin_button_new_with_range(0.5, 1440.0, 0.5));
-  gtk_spin_button_set_digits(st->interval, 1);
-  gtk_spin_button_set_value(st->interval, st->config.interval_minutes);
-  gtk_widget_set_hexpand(GTK_WIDGET(st->interval), TRUE);
-  g_signal_connect(st->interval, "value-changed", G_CALLBACK(on_settings_changed), st);
-  gtk_box_append(GTK_BOX(interval_row), GTK_WIDGET(st->interval));
-  gtk_box_append(GTK_BOX(interval_row), gtk_label_new(_("minutes")));
-  gtk_box_append(GTK_BOX(right_col), interval_row);
+  st->interval = ADW_SPIN_ROW(adw_spin_row_new_with_range(0.5, 1440.0, 0.5));
+  adw_preferences_row_set_title(ADW_PREFERENCES_ROW(st->interval), _("Interval"));
+  adw_action_row_set_subtitle(ADW_ACTION_ROW(st->interval), _("Minutes between wallpaper changes"));
+  adw_spin_row_set_digits(st->interval, 1);
+  adw_spin_row_set_value(st->interval, st->config.interval_minutes);
+  g_signal_connect(st->interval, "notify::value", G_CALLBACK(on_interval_changed), st);
+  adw_preferences_group_add(rotation, GTK_WIDGET(st->interval));
 
-  GtkWidget* shuffle_row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-  GtkWidget* shuffle_text = gtk_label_new(_("Shuffle"));
-  gtk_widget_set_halign(shuffle_text, GTK_ALIGN_START);
-  gtk_widget_set_hexpand(shuffle_text, TRUE);
-  st->shuffle = GTK_SWITCH(gtk_switch_new());
-  gtk_switch_set_active(st->shuffle, st->config.shuffle);
-  gtk_widget_set_valign(GTK_WIDGET(st->shuffle), GTK_ALIGN_CENTER);
-  g_signal_connect(st->shuffle, "state-set", G_CALLBACK(on_shuffle_set), st);
-  gtk_box_append(GTK_BOX(shuffle_row), shuffle_text);
-  gtk_box_append(GTK_BOX(shuffle_row), GTK_WIDGET(st->shuffle));
-  gtk_box_append(GTK_BOX(right_col), shuffle_row);
+  st->shuffle = ADW_SWITCH_ROW(adw_switch_row_new());
+  adw_preferences_row_set_title(ADW_PREFERENCES_ROW(st->shuffle), _("Shuffle"));
+  adw_action_row_set_subtitle(ADW_ACTION_ROW(st->shuffle), _("Pick the next image at random"));
+  adw_switch_row_set_active(st->shuffle, st->config.shuffle);
+  g_signal_connect(st->shuffle, "notify::active", G_CALLBACK(on_shuffle_changed), st);
+  adw_preferences_group_add(rotation, GTK_WIDGET(st->shuffle));
+
+  gtk_box_append(GTK_BOX(root), GTK_WIDGET(rotation));
 
   GtkWidget* controls = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
   st->toggle_btn = GTK_BUTTON(gtk_button_new_with_label(_("Start")));
   gtk_widget_add_css_class(GTK_WIDGET(st->toggle_btn), "suggested-action");
+  gtk_widget_add_css_class(GTK_WIDGET(st->toggle_btn), "pill");
   gtk_widget_set_hexpand(GTK_WIDGET(st->toggle_btn), TRUE);
   g_signal_connect(st->toggle_btn, "clicked", G_CALLBACK(on_toggle), st);
   st->next_btn = GTK_BUTTON(gtk_button_new_with_label(_("Next")));
+  gtk_widget_add_css_class(GTK_WIDGET(st->next_btn), "pill");
   g_signal_connect(st->next_btn, "clicked", G_CALLBACK(on_next), st);
   gtk_box_append(GTK_BOX(controls), GTK_WIDGET(st->toggle_btn));
   gtk_box_append(GTK_BOX(controls), GTK_WIDGET(st->next_btn));
-  gtk_box_append(GTK_BOX(right_col), controls);
-
-  gtk_box_append(GTK_BOX(params_row), left_col);
-  gtk_box_append(GTK_BOX(params_row), right_col);
-  gtk_box_append(GTK_BOX(root), params_row);
+  gtk_box_append(GTK_BOX(root), controls);
 
   st->status = GTK_LABEL(gtk_label_new(_("Ready")));
   gtk_widget_set_hexpand(GTK_WIDGET(st->status), TRUE);
@@ -781,6 +750,8 @@ GtkWidget* build_window(UiState* st) {
   gtk_widget_add_css_class(GTK_WIDGET(st->status), "dim-label");
   gtk_box_append(GTK_BOX(root), GTK_WIDGET(st->status));
 
+  rebuild_path_list(st);
+
   const auto images = st->config.image_files();
   if (images.empty()) {
     set_status(st, _("Add images or a folder"));
@@ -789,7 +760,7 @@ GtkWidget* build_window(UiState* st) {
   }
   sync_playback_controls(st);
 
-  adw_toolbar_view_set_content(toolbar, root);
+  adw_toolbar_view_set_content(toolbar, clamp);
   adw_application_window_set_content(window, GTK_WIDGET(toolbar));
 
   if (rotation_active(st) || st->config.running) {
@@ -803,6 +774,9 @@ GtkWidget* build_window(UiState* st) {
 }
 
 void on_activate(GApplication* app, gpointer) {
+  adw_style_manager_set_color_scheme(adw_style_manager_get_default(),
+                                     ADW_COLOR_SCHEME_DEFAULT);
+
   auto* st = state_from_app(ADW_APPLICATION(app));
   if (st->window == nullptr) {
     GtkWidget* window = build_window(st);
@@ -821,16 +795,14 @@ void on_activate(GApplication* app, gpointer) {
 }  // namespace
 
 int run_ui(int argc, char** argv) {
-  adw_init();
+  AdwApplication* app =
+      adw_application_new("io.nexol.Backdrop", G_APPLICATION_DEFAULT_FLAGS);
 
   auto* st = new UiState();
   st->config = Config::load();
   st->rotator = std::make_unique<Rotator>(
       [st](const fs::path& p) { queue_status(st, _("Now: ") + p.filename().string()); },
       [st](const std::string& m) { queue_status(st, m); });
-
-  AdwApplication* app =
-      adw_application_new("io.nexol.Backdrop", G_APPLICATION_DEFAULT_FLAGS);
   st->app = app;
   g_object_set_data_full(G_OBJECT(app), "backdrop-state", st, [](gpointer data) {
     auto* state = static_cast<UiState*>(data);

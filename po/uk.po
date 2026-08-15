@@ -1,7 +1,7 @@
 # Ukrainian translation for Backdrop.
 msgid ""
 msgstr ""
-"Project-Id-Version: backdrop 0.1.0\n"
+"Project-Id-Version: backdrop 0.1.1\n"
 "Report-Msgid-Bugs-To: dmytro@nexol.io\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
@@ -93,8 +93,14 @@ msgstr "Шпалери"
 msgid "No images\nImport files or add a folder"
 msgstr "Немає зображень\nІмпортуйте файли або додайте теку"
 
+msgid "Import files or add a folder to start rotating wallpapers"
+msgstr "Імпортуйте файли або додайте теку, щоб почати ротацію шпалер"
+
 msgid "Sources"
 msgstr "Джерела"
+
+msgid "Import copies files; Folder only stores the path"
+msgstr "Імпорт копіює файли; Тека лише зберігає шлях"
 
 msgid "Import"
 msgstr "Імпорт"
@@ -114,11 +120,17 @@ msgstr "Ротація"
 msgid "Interval"
 msgstr "Інтервал"
 
+msgid "Minutes between wallpaper changes"
+msgstr "Хвилини між змінами шпалер"
+
 msgid "minutes"
 msgstr "хвилин"
 
 msgid "Shuffle"
 msgstr "Випадковий порядок"
+
+msgid "Pick the next image at random"
+msgstr "Вибирати наступне зображення випадково"
 
 msgid "Next"
 msgstr "Наступна"

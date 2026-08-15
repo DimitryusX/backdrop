@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(backdrop VERSION 0.1.0 LANGUAGES CXX)
+project(backdrop VERSION 0.1.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK4 REQUIRED IMPORTED_TARGET gtk4)
-pkg_check_modules(ADWAITA REQUIRED IMPORTED_TARGET libadwaita-1)
+pkg_check_modules(ADWAITA REQUIRED IMPORTED_TARGET libadwaita-1>=1.6)
 find_package(Intl)
 find_program(MSGFMT_EXECUTABLE msgfmt)
 

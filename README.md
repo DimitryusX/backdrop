@@ -4,6 +4,8 @@ Minimal wallpaper rotator for Linux. GTK4 / libadwaita UI and a background daemo
 
 **App ID:** `io.nexol.Backdrop` · **Author:** Dmytro · **Contact:** dmytro@nexol.io · **Site:** [nexol.io](https://nexol.io)
 
+![Backdrop screenshot](docs/backdrop-screen-1.png)
+
 ## Features
 
 - Import images (copied under `~/.local/share/backdrop/wallpapers/`, deduped by SHA-256) or add folders by path
